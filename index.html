@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestionnaire Collaborateurs - HRBP</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='30' cy='40' r='15' fill='%2306b6d4' opacity='0.9'/><circle cx='50' cy='25' r='15' fill='%2310b981' opacity='0.9'/><circle cx='70' cy='40' r='15' fill='%2306b6d4' opacity='0.9'/><line x1='30' y1='40' x2='50' y2='25' stroke='%2310b981' stroke-width='2' opacity='0.6'/><line x1='50' y1='25' x2='70' y2='40' stroke='%2306b6d4' stroke-width='2' opacity='0.6'/><line x1='30' y1='40' x2='70' y2='40' stroke='%2310b981' stroke-width='2' opacity='0.6'/></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ====== SECTION LOGIN ====== -->
+  <div id="loginSection" class="login-overlay">
+    <div class="login-container">
+      <div class="login-box">
+        <div class="login-header">
+          <svg class="logo" viewBox="0 0 100 100" width="60" height="60">
+            <!-- Cercle principal gradient -->
+            <defs>
+              <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <!-- Trois collaborateurs représentés par des cercles -->
+            <circle cx="30" cy="40" r="15" fill="#06b6d4" opacity="0.9"/>
+            <circle cx="50" cy="25" r="15" fill="#10b981" opacity="0.9"/>
+            <circle cx="70" cy="40" r="15" fill="#06b6d4" opacity="0.9"/>
+            <!-- Connexions entre collaborateurs (réseau) -->
+            <line x1="30" y1="40" x2="50" y2="25" stroke="#10b981" stroke-width="2" opacity="0.6"/>
+            <line x1="50" y1="25" x2="70" y2="40" stroke="#06b6d4" stroke-width="2" opacity="0.6"/>
+            <line x1="30" y1="40" x2="70" y2="40" stroke="#10b981" stroke-width="2" opacity="0.6"/>
+          </svg>
+          <h1>🔐 Authentification</h1>
+          <p>Gestionnaire Collaborateurs - HRBP</p>
+        </div>
+        
+        <form id="loginForm" class="login-form">
+          <div class="login-form-group">
+            <label for="username">👤 Utilisateur</label>
+            <input 
+              type="text" 
+              id="username" 
+              name="username" 
+              placeholder="Entrez votre identifiant" 
+              required 
+              autocomplete="username"
+            >
+          </div>
+
+          <div class="login-form-group">
+            <label for="password">🔑 Mot de passe</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              placeholder="Entrez votre mot de passe" 
+              required 
+              autocomplete="current-password"
+            >
+          </div>
+
+          <div id="loginMessage" class="login-message"></div>
+
+          <button type="submit" class="btn btn-login">
+            🚀 Se connecter
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <header class="header">
+    <svg class="logo" viewBox="0 0 100 100" width="70" height="70">
+      <!-- Cercle principal gradient -->
+      <defs>
+        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <!-- Trois collaborateurs représentés par des cercles -->
+      <circle cx="30" cy="40" r="15" fill="#06b6d4" opacity="0.9"/>
+      <circle cx="50" cy="25" r="15" fill="#10b981" opacity="0.9"/>
+      <circle cx="70" cy="40" r="15" fill="#06b6d4" opacity="0.9"/>
+      <!-- Connexions entre collaborateurs (réseau) -->
+      <line x1="30" y1="40" x2="50" y2="25" stroke="#10b981" stroke-width="2" opacity="0.6"/>
+      <line x1="50" y1="25" x2="70" y2="40" stroke="#06b6d4" stroke-width="2" opacity="0.6"/>
+      <line x1="30" y1="40" x2="70" y2="40" stroke="#10b981" stroke-width="2" opacity="0.6"/>
+    </svg>
+    <h1>✨ Gestionnaire Collaborateurs - HRBP</h1>
+    <!-- <p class="subtitle">Gérez et importez vos collaborateurs facilement</p> -->
+  </header>
+
+  <!-- ====== NAVIGATION ONGLETS ====== -->
+  <div class="nav-tabs">
+    <button class="nav-btn active" data-tab="formulaire" onclick="switchTab('formulaire')">
+      <span class="nav-icon">➕</span>
+      <span class="nav-text">Formulaire</span>
+    </button>
+    <button class="nav-btn" data-tab="import" onclick="switchTab('import')">
+      <span class="nav-icon">📥</span>
+      <span class="nav-text">Importer Excel</span>
+    </button>
+    <button class="nav-btn" data-tab="details" onclick="switchTab('details')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-text">Détails</span>
+    </button>
+  </div>
+
+  <!-- ====== SECTION FORMULAIRE ====== -->
+  <section id="formulaire" class="card form-card tab-section active">
+    <h2>➕ Ajouter un nouveau collaborateur</h2>
+
+    <form id="hrbpForm" class="hrbp-form">
+      <div class="form-group">
+        <label for="matricule">👤 Matricule</label>
+        <input type="text" id="matricule" name="matricule" placeholder="Ex: CN01234" required>
+      </div>
+
+      <div class="form-group">
+        <label for="statut">✓ Statut</label>
+        <select id="statut" name="statut" required>
+          <option value="">-- Choisir un statut --</option>
+          <option value="INT MDJ">INT MDJ (Stagiaire)</option>
+          <option value="CDI">CDI (Contrat Indéfini)</option>
+          <option value="CDD">CDD (Contrat Déterminé)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="nom">👥 Nom et Prénoms</label>
+        <input type="text" id="nom" name="nom" placeholder="Ex: DUPONT Martin" required>
+      </div>
+
+      <div class="form-group">
+        <label for="fonction">💼 Fonction</label>
+        <input type="text" id="fonction" name="fonction" placeholder="Ex: Développeur" required>
+      </div>
+
+      <div class="form-group">
+        <label for="rattachement">🏢 Rattachement</label>
+        <input type="text" id="rattachement" name="rattachement" placeholder="Ex: IT / DSI" required>
+      </div>
+
+      <div class="form-group">
+        <label for="dateIntegration">📅 Date d'intégration</label>
+        <input type="date" id="dateIntegration" name="dateIntegration" required>
+      </div>
+
+      <div id="formMessage" class="message"></div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+        <button type="reset" class="btn btn-secondary">🔄 Réinitialiser</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ====== SECTION IMPORT ====== -->
+  <section id="import" class="card import-card tab-section">
+    <div class="import-header">
+      <h2>📥 Importer depuis Excel</h2>
+      <p class="info-text">Chargez votre fichier Excel et affichage de tous les données avant d'enregistrer</p>
+    </div>
+
+    <div class="import-section">
+      <div class="import-info">
+        <p>📄 <strong>Format attendu:</strong> Excel avec les colonnes suivantes:</p>
+        <ul>
+          <li>👤 <strong>Matricule</strong></li>
+          <li>✓ <strong>Statut</strong> (INT MDJ, CDI, CDD)</li>
+          <li>👥 <strong>Nom et Prénoms</strong></li>
+          <li>💼 <strong>Fonction</strong></li>
+          <li>🏢 <strong>Rattachement</strong></li>
+          <li>📅 <strong>Date d'intégration</strong> (format: JJ/MM/YYYY)</li>
+        </ul>
+      </div>
+
+      <div class="import-form">
+        <div class="file-input-wrapper">
+          <label for="excelFile" class="file-label">
+            <span class="file-icon">📂</span>
+            <span class="file-text">Sélectionner fichier Excel</span>
+          </label>
+          <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
+          <div id="fileName" class="file-name-display"></div>
+        </div>
+        <button type="button" class="btn btn-primary btn-large" onclick="previewExcelFile()">👀 Aperçu des données</button>
+      </div>
+
+      <div id="previewContainer" style="display: none; margin-top: 30px;">
+        <h3>🔍 Données à importer</h3>
+        <div class="preview-table-container">
+          <table id="previewTable" class="data-table">
+            <thead id="previewHead"></thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+        <div id="importMessage" class="message"></div>
+        <div class="import-actions">
+          <button type="button" class="btn btn-primary btn-large" onclick="importExcelFile()">✅ Enregistrer</button>
+          <button type="button" class="btn btn-secondary btn-large" onclick="cancelImport()">❌ Annuler</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== SECTION DÉTAILS & STATISTIQUES ====== -->
+  <section id="details" class="card details-card tab-section">
+    <h2>📊 Détails</h2>
+    
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-number" id="totalCollaborators">0</div>
+        <div class="stat-label">Collaborateurs Total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalCDI">0</div>
+        <div class="stat-label">CDI</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalCDD">0</div>
+        <div class="stat-label">CDD</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalINT">0</div>
+        <div class="stat-label">INT MDJ</div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <h3>📈 Répartition par Rattachement</h3>
+      <div class="chart-container">
+        <canvas id="collaboratorsChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- SheetJS pour lire les fichiers Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Chart.js pour les diagrammes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+
