@@ -102,8 +102,14 @@
     <button class="nav-btn" data-tab="import" onclick="switchTab('import')">
       <span class="nav-icon">📥</span>
       <span class="nav-text">Importer Excel</span>
+    </button>    <button class="nav-btn" data-tab="incomplets" onclick="switchTab('incomplets')">
+      <span class="nav-icon">⚠️</span>
+      <span class="nav-text">À Compléter</span>
     </button>
-    <button class="nav-btn" data-tab="details" onclick="switchTab('details')">
+    <button class="nav-btn" data-tab="collaborateurs" onclick="switchTab('collaborateurs')">
+      <span class="nav-icon">👥</span>
+      <span class="nav-text">Tous Collaborateurs</span>
+    </button>    <button class="nav-btn" data-tab="details" onclick="switchTab('details')">
       <span class="nav-icon">📊</span>
       <span class="nav-text">Détails</span>
     </button>
@@ -130,23 +136,37 @@
       </div>
 
       <div class="form-group">
+        <label for="matriculeGroupe">🔗 Matricule Groupe (optionnel)</label>
+        <input type="text" id="matriculeGroupe" name="matriculeGroupe" placeholder="Ex: GROUPE001">
+      </div>
+
+      <div class="form-group">
         <label for="nom">👥 Nom et Prénoms</label>
         <input type="text" id="nom" name="nom" placeholder="Ex: DUPONT Martin" required>
       </div>
 
       <div class="form-group">
         <label for="fonction">💼 Fonction</label>
-        <input type="text" id="fonction" name="fonction" placeholder="Ex: Développeur" required>
+        <select id="fonction" name="fonction" required>
+          <option value="">-- Sélectionner fonction --</option>
+        </select>
       </div>
 
       <div class="form-group">
         <label for="rattachement">🏢 Rattachement</label>
-        <input type="text" id="rattachement" name="rattachement" placeholder="Ex: IT / DSI" required>
+        <select id="rattachement" name="rattachement" required>
+          <option value="">-- Sélectionner rattachement --</option>
+        </select>
       </div>
 
       <div class="form-group">
         <label for="dateIntegration">📅 Date d'intégration</label>
         <input type="date" id="dateIntegration" name="dateIntegration" required>
+      </div>
+
+      <div class="form-group">
+        <label for="dateFin">🏁 Date Fin</label>
+        <input type="date" id="dateFin" name="dateFin" disabled>
       </div>
 
       <div id="formMessage" class="message"></div>
@@ -170,11 +190,13 @@
         <p>📄 <strong>Format attendu:</strong> Excel avec les colonnes suivantes:</p>
         <ul>
           <li>👤 <strong>Matricule</strong></li>
+          <li>🔗 <strong>Matricule Groupe</strong> (optionnel)</li>
           <li>✓ <strong>Statut</strong> (INT MDJ, CDI, CDD)</li>
           <li>👥 <strong>Nom et Prénoms</strong></li>
           <li>💼 <strong>Fonction</strong></li>
           <li>🏢 <strong>Rattachement</strong></li>
           <li>📅 <strong>Date d'intégration</strong> (format: JJ/MM/YYYY)</li>
+          <li>🏁 <strong>Date Fin</strong> (optionnel)</li>
         </ul>
       </div>
 
@@ -205,6 +227,19 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- ====== SECTION COLLABORATEURS À COMPLÉTER ====== -->
+  <section id="incomplets" class="card tab-section">
+    <h2>⚠️ Collaborateurs sans Matricule Groupe</h2>
+    <p class="info-text">Cliquez sur "Éditer" pour ajouter un Matricule Groupe (la Date Fin sera remplie automatiquement)</p>
+    <div id="collaboratorsWithoutMatriculeGroupeContainer" class="table-container"></div>
+  </section>
+
+  <!-- ====== SECTION TOUS LES COLLABORATEURS ====== -->
+  <section id="collaborateurs" class="card tab-section">
+    <h2>👥 Tous les Collaborateurs</h2>
+    <div id="collaboratorsTableContainer" class="table-container"></div>
   </section>
 
   <!-- ====== SECTION DÉTAILS & STATISTIQUES ====== -->
