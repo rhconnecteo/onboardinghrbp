@@ -1420,11 +1420,23 @@ body {
 
 .preview-table-container {
   overflow-x: auto;
+  overflow-y: visible;
   border-radius: 10px;
   margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  max-width: 100%;
+  width: 100%;
   border: 1px solid rgba(6, 182, 212, 0.08);
+}
+
+#previewTable {
+  width: 100%;
+  font-size: 13px;
+}
+
+#previewTable th,
+#previewTable td {
+  padding: 8px 10px;
+  white-space: nowrap;
 }
 
 .import-actions {

@@ -44,6 +44,7 @@ let allCollaborators = [];
 let baseData = { fonctions: [], rattachements: [] };
 let collaboratorsChart = null;
 let isAuthenticated = false;
+let isSubmitting = false; // Protection contre les clics multiples
 
 // ===============================
 // FONCTION UTILITAIRE : Formater date au format DD/MM/YYYY
@@ -158,7 +159,11 @@ async function loadBase() {
     const data = await response.json();
 
     if (data.fonctions && data.rattachements) {
-      baseData = data;
+      // Nettoyer les données BASE: trimmer chaque fonction et rattachement
+      baseData = {
+        fonctions: data.fonctions.map(f => String(f || "").trim()),
+        rattachements: data.rattachements.map(r => String(r || "").trim())
+      };
       populateSelects();
     } else if (data.error) {
       throw new Error(data.error);
@@ -350,14 +355,19 @@ function setupFormListener() {
   el.hrbpForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // Protection contre les clics multiples
+    if (isSubmitting) return;
+    isSubmitting = true;
+    e.target.querySelector("button[type='submit']").disabled = true;
+
     // Récupérer les données du formulaire
     const formData = {
       matricule: document.getElementById("matricule").value.trim(),
       matriculeGroupe: document.getElementById("matriculeGroupe")?.value.trim() || "",
       statut: document.getElementById("statut").value,
       nom: document.getElementById("nom").value.trim(),
-      fonction: document.getElementById("fonction").value,
-      rattachement: document.getElementById("rattachement").value,
+      fonction: document.getElementById("fonction").value.trim(),
+      rattachement: document.getElementById("rattachement").value.trim(),
       dateIntegration: document.getElementById("dateIntegration").value,
       dateFin: document.getElementById("dateFin")?.value || ""
     };
@@ -414,6 +424,10 @@ function setupFormListener() {
     } catch (err) {
       console.error("Erreur submission:", err);
       showFormMessage(`❌ Impossible d'enregistrer: ${err.message}`, "error");
+    } finally {
+      // Réactiver le bouton
+      isSubmitting = false;
+      e.target.querySelector("button[type='submit']").disabled = false;
     }
   });
 }
@@ -615,11 +629,11 @@ function editCollaborator(index) {
           </div>
           <div class="form-group">
             <label for="editMatriculeGroupe">🔗 Matricule Groupe</label>
-            <input type="text" id="editMatriculeGroupe" value="${collab.matriculeGroupe || ""}" placeholder="Ex: GROUPE001">
+            <input type="text" id="editMatriculeGroupe" value="" placeholder="Ex: GROUPE001">
           </div>
           <div class="form-group">
             <label for="editDateFin">🏁 Date Fin (DD/MM/YYYY)</label>
-            <input type="date" id="editDateFin" value="${dateFinalValue}">
+            <input type="date" id="editDateFin" value="">
           </div>
         </div>
       </div>
@@ -655,29 +669,39 @@ function closeEditModal() {
 // ENREGISTRER LES MODIFICATIONS
 // ===============================
 async function saveEditCollaborator(index) {
+  // Protection contre les clics multiples
+  if (isSubmitting) return;
+  isSubmitting = true;
+
   const matriculeGroupe = document.getElementById("editMatriculeGroupe").value.trim();
   const dateFin = document.getElementById("editDateFin").value;
 
   if (!matriculeGroupe) {
     alert("❌ Veuillez remplir le Matricule Groupe");
+    isSubmitting = false;
     return;
   }
 
   if (!dateFin) {
     alert("❌ Veuillez remplir la Date Fin");
+    isSubmitting = false;
     return;
   }
 
-  // TODO: Ajouter un appel API pour mettre à jour le backend
-  // Pour l'instant, mise à jour locale
-  allCollaborators[index].matriculeGroupe = matriculeGroupe;
-  allCollaborators[index].dateFin = dateFin;
+  try {
+    // TODO: Ajouter un appel API pour mettre à jour le backend
+    // Pour l'instant, mise à jour locale
+    allCollaborators[index].matriculeGroupe = matriculeGroupe;
+    allCollaborators[index].dateFin = dateFin;
 
-  closeEditModal();
-  renderCollaboratorsWithoutMatriculeGroupe();
-  renderCollaboratorsTable();
-  
-  alert("✅ Collaborateur mis à jour. Note: Une synchronisation backend est nécessaire.");
+    closeEditModal();
+    renderCollaboratorsWithoutMatriculeGroupe();
+    renderCollaboratorsTable();
+    
+    alert("✅ Collaborateur mis à jour. Note: Une synchronisation backend est nécessaire.");
+  } finally {
+    isSubmitting = false;
+  }
 }
 
 // ===============================
@@ -883,8 +907,13 @@ async function previewExcelFile() {
         console.log("BASE Rattachements:", baseData.rattachements);
       }
 
-      // ⚠️ NE PAS valider - afficher quand même
-      // Les données s'afficheront même si Fonction/Rattachement sont invalides
+      // Valider fonction et rattachement contre la BASE
+      if (!baseData.fonctions.includes(fonction)) {
+        errors.push(`Fonction invalide "${fonction}"`);
+      }
+      if (!baseData.rattachements.includes(rattachement)) {
+        errors.push(`Rattachement invalide "${rattachement}"`);
+      }
 
       // Convertir la date d'intégration (si c'est un nombre, c'est un timestamp Excel)
       let dateStr = String(row[dateIntegrationCol] || "").trim();
@@ -946,8 +975,7 @@ function displayPreviewTable() {
   // Créer les en-têtes
   el.previewHead.innerHTML = `
     <tr>
-      <th>� Insertion</th>
-      <th>�👤 Matricule</th>
+      <th> Matricule</th>
       <th>🔗 Mat. Groupe</th>
       <th>✓ Statut</th>
       <th>👥 Nom</th>
@@ -955,6 +983,7 @@ function displayPreviewTable() {
       <th>🏢 Rattachement</th>
       <th>📆 Date d'intégration</th>
       <th>🏁 Date Fin</th>
+      <th>✓ Valider</th>
     </tr>
   `;
 
@@ -969,23 +998,19 @@ function displayPreviewTable() {
     let badgeClass = "badge-cdi";
     if (row.statut === "INT MDJ") badgeClass = "badge-int";
     if (row.statut === "CDD") badgeClass = "badge-cdd";
-
-    // Date d'insertion (date du jour)
-    const today = new Date().toISOString().split("T")[0];
     
     // Colorer en rouge si des erreurs
     if (!row.isValid) {
       tr.style.backgroundColor = "#fee2e2";
     }
 
-    // Afficher les erreurs (max 2 lignes)
-    let errorHTML = "✅";
-    if (row.validationErrors && row.validationErrors.length > 0) {
-      errorHTML = row.validationErrors.slice(0, 2).join("<br>");
-    }
+    // Icône de validation
+    const validationIcon = row.isValid ? "✅" : "❌";
+    const errorTooltip = row.validationErrors && row.validationErrors.length > 0 
+      ? `title="${row.validationErrors.join(', ')}"` 
+      : "";
 
     tr.innerHTML = `
-      <td><small>${today}</small></td>
       <td><strong>${row.matricule}</strong></td>
       <td><small>${row.matriculeGroupe || "--"}</small></td>
       <td><span class="badge ${badgeClass}">${row.statut}</span></td>
@@ -994,7 +1019,7 @@ function displayPreviewTable() {
       <td><small>${row.rattachement}</small></td>
       <td><small>${row.dateIntegration}</small></td>
       <td><small>${row.dateFin || "--"}</small></td>
-      <td style="color: ${row.isValid ? 'green' : 'red'}; font-size: 11px; max-width: 150px; word-break: break-word;">${errorHTML}</td>
+      <td style="text-align: center; font-size: 18px; cursor: help;" ${errorTooltip}>${validationIcon}</td>
     `;
 
     el.previewBody.appendChild(tr);
@@ -1024,6 +1049,10 @@ function displayPreviewTable() {
 // IMPORTER LES DONNÉES
 // ===============================
 async function importExcelFile() {
+  // Protection contre les clics multiples
+  if (isSubmitting) return;
+  isSubmitting = true;
+
   // Filtrer les lignes valides
   const validData = pendingImportData.filter(r => r.isValid);
   
@@ -1031,6 +1060,7 @@ async function importExcelFile() {
     const importMsg = document.getElementById("importMessage");
     importMsg.textContent = "❌ Aucune donnée valide à importer";
     importMsg.className = "message show error";
+    isSubmitting = false;
     return;
   }
 
@@ -1115,6 +1145,8 @@ async function importExcelFile() {
     const importMsg = document.getElementById("importMessage");
     importMsg.textContent = `❌ Erreur: ${err.message}`;
     importMsg.className = "message show error";
+  } finally {
+    isSubmitting = false;
   }
 }
 
