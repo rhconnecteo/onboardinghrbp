@@ -247,13 +247,19 @@ function populateSelects() {
 // FILTRER LES FONCTIONS PAR RATTACHEMENT
 // ===============================
 window.previewExcelFile = function() {
+  alert('Fonction apercu appelée!');
   const input = el.excelFile;
   const importMessage = document.getElementById("importMessage");
-  const previewContainer = document.getElementById("previewContainer");
+  const sidebarPreview = document.getElementById('sidebarPreviewContainer');
+
+  // Test visuel et log
+  console.log('[TEST] Aperçu appelé');
+  sidebarPreview.style.display = 'block';
+  sidebarPreview.innerHTML = '<div style="color:green;font-weight:bold;font-size:24px;padding:20px;background:#d4edda;border:2px solid #28a745;border-radius:8px;">[TEST] Le conteneur d\'aperçu fonctionne !</div>';
 
   if (!input.files || !input.files[0]) {
     importMessage.innerHTML = "❌ Veuillez sélectionner un fichier Excel.";
-    previewContainer.innerHTML = "";
+    sidebarPreview.innerHTML = "";
     return;
   }
 
@@ -270,31 +276,34 @@ window.previewExcelFile = function() {
     const rows = json.filter(row => row.length >= 6);
     if (rows.length === 0) {
       importMessage.innerHTML = "❌ Aucun collaborateur trouvé dans le fichier.";
-      previewContainer.innerHTML = "";
+      sidebarPreview.innerHTML = "";
       return;
     }
 
-    // Afficher l'aperçu et les boutons
-    const headers = [
-      "Matricule", "Nom et Prénom", "Fonction", "Rattachement", "Statut", "Date d'intégration"
-    ];
-    let html = `<div style=\"margin-bottom:16px;\">\n      <table class='collaborators-table'><thead><tr>`;
-    headers.forEach(h => html += `<th>${h}</th>`);
-    html += `</tr></thead><tbody>`;
-    rows.forEach(row => {
-      html += "<tr>";
-      for (let i = 0; i < headers.length; i++) {
-        html += `<td>${row[i] || ""}</td>`;
-      }
-      html += "</tr>";
-    });
-    html += `</tbody></table></div>`;
-    html += `<div style=\"margin-top:12px;\">\n      <button type=\"button\" class=\"btn btn-primary btn-large\" onclick=\"importExcelFile()\">Enregistrer</button>\n      <button type=\"button\" class=\"btn btn-secondary btn-large\" style=\"margin-left:8px;\" onclick=\"cancelImport()\">Annuler</button>\n    </div>`;
-    previewContainer.innerHTML = html;
-    importMessage.innerHTML = `✅ ${rows.length} collaborateurs trouvés. Cliquez sur Enregistrer pour importer.`;
-
-    // Stocker temporairement les données pour l'import
-    window._excelImportData = rows;
+    // TEST : Tableau statique et boutons
+    let html = `<div style='margin-bottom:16px; background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 8px #0002; z-index:9999; position:relative;'>
+      <table border='1' style='width:100%;background:#fff;font-size:18px;'>
+        <thead><tr>
+          <th>Matricule</th><th>Nom et Prénom</th><th>Fonction</th><th>Rattachement</th><th>Statut</th><th>Date d'intégration</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>CN01102</td><td>Radily</td><td>BI RH</td><td>RH</td><td>CDI</td><td>01/01/2026</td></tr>
+        </tbody>
+      </table>
+    </div>`;
+    html += `<div style='margin-top:12px; text-align:center;'>
+      <button type='button' style='font-size:20px;padding:12px 32px;background:#059669;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-right:12px;' onclick='importExcelFile()'>Enregistrer</button>
+      <button type='button' style='font-size:20px;padding:12px 32px;background:#e11d48;color:#fff;border:none;border-radius:6px;cursor:pointer;' onclick='cancelImport()'>Annuler</button>
+    </div>`;
+    sidebarPreview.style.display = 'block';
+    sidebarPreview.style.background = '#fff';
+    sidebarPreview.style.padding = '24px';
+    sidebarPreview.style.borderRadius = '8px';
+    sidebarPreview.style.boxShadow = '0 2px 8px #0002';
+    sidebarPreview.style.zIndex = '9999';
+    sidebarPreview.style.position = 'relative';
+    sidebarPreview.innerHTML = html;
+    importMessage.innerHTML = `✅ Test : tableau statique affiché.`;
   };
   reader.readAsArrayBuffer(file);
 };
@@ -534,90 +543,10 @@ function setupFileInputListener() {
   });
 }
 
-// Fonction pour lire et afficher l'aperçu du fichier Excel
-window.previewExcelFile = function() {
-  const input = el.excelFile;
-  const importMessage = document.getElementById("importMessage");
-  const previewContainer = document.getElementById("previewContainer");
-
-  if (!input.files || !input.files[0]) {
-    importMessage.innerHTML = "❌ Veuillez sélectionner un fichier Excel.";
-    previewContainer.innerHTML = "";
-    return;
-  }
-
-  const file = input.files[0];
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-    // En-têtes attendus
-    const headers = [
-      "Matricule", // Col A
-      "Nom et Prénom", // Col B
-      "Fonction", // Col C
-      "Rattachement", // Col D
-      "Statut", // Col E
-      "Date d'intégration" // Col F
-    ];
-
-    // Vérifier les en-têtes
-    const firstRow = json[0] || [];
-    let valid = true;
-    for (let i = 0; i < headers.length; i++) {
-      if ((firstRow[i] || "").toLowerCase().trim() !== headers[i].toLowerCase().trim()) {
-        valid = false;
-        break;
-      }
-    }
-    if (!valid) {
-      importMessage.innerHTML = `❌ Format de fichier incorrect. Les colonnes attendues sont :<br>${headers.join(" | ")}`;
-      previewContainer.innerHTML = "";
-      return;
-    }
-
-    // Extraire les données (ignorer la première ligne)
-    const rows = json.slice(1).filter(row => row.length >= headers.length);
-    if (rows.length === 0) {
-      importMessage.innerHTML = "❌ Aucun collaborateur trouvé dans le fichier.";
-      previewContainer.innerHTML = "";
-      return;
-    }
-
-    // Afficher l'aperçu et les boutons
-    let html = `<div style="margin-bottom:16px;">
-      <table class='collaborators-table'><thead><tr>`;
-    headers.forEach(h => html += `<th>${h}</th>`);
-    html += `</tr></thead><tbody>`;
-    rows.forEach(row => {
-      html += "<tr>";
-      for (let i = 0; i < headers.length; i++) {
-        html += `<td>${row[i] || ""}</td>`;
-      }
-      html += "</tr>";
-    });
-    html += `</tbody></table></div>`;
-    html += `<div style="margin-top:12px;">
-      <button type="button" class="btn btn-primary btn-large" onclick="importExcelFile()">Enregistrer</button>
-      <button type="button" class="btn btn-secondary btn-large" style="margin-left:8px;" onclick="cancelImport()">Annuler</button>
-    </div>`;
-    previewContainer.innerHTML = html;
-    importMessage.innerHTML = `✅ ${rows.length} collaborateurs trouvés. Cliquez sur Enregistrer pour importer.`;
-
-    // Stocker temporairement les données pour l'import
-    window._excelImportData = rows;
-  };
-  reader.readAsArrayBuffer(file);
-};
-
 // Fonction pour enregistrer les données importées
 window.importExcelFile = async function() {
   const importMessage = document.getElementById("importMessage");
-  const previewContainer = document.getElementById("previewContainer");
+  const sidebarPreview = document.getElementById("sidebarPreviewContainer");
   const rows = window._excelImportData || [];
   if (!rows.length) {
     importMessage.innerHTML = "❌ Aucun collaborateur à importer.";
@@ -656,13 +585,16 @@ window.importExcelFile = async function() {
   // Recharger la liste
   loadCollaborators();
   // Nettoyer l'aperçu
-  previewContainer.innerHTML = "";
+  sidebarPreview.innerHTML = "";
+  sidebarPreview.style.display = "none";
   window._excelImportData = [];
 };
 
 // Annuler l'import
 window.cancelImport = function() {
-  document.getElementById("previewContainer").innerHTML = "";
+  const sidebarPreview = document.getElementById("sidebarPreviewContainer");
+  sidebarPreview.innerHTML = "";
+  sidebarPreview.style.display = "none";
   document.getElementById("importMessage").innerHTML = "";
   window._excelImportData = [];
 };
