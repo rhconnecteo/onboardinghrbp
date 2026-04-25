@@ -97,6 +97,8 @@ function setupLoginListener() {
     const username = el.username.value.trim();
     const password = el.password.value.trim();
     
+    console.log(`🔐 Login attempt for user: ${username}`);
+    
     if (VALID_USERS.includes(username) && password === VALID_PASSWORD) {
       // Authentification réussie
       isAuthenticated = true;
@@ -104,6 +106,8 @@ function setupLoginListener() {
       
       el.loginMessage.innerHTML = "✅ Connexion réussie...";
       el.loginMessage.className = "login-message show success";
+      
+      console.log(`✅ Authentication successful for user: ${username}`);
       
       setTimeout(() => {
         el.loginSection.classList.add("hidden");
@@ -114,6 +118,8 @@ function setupLoginListener() {
       el.loginMessage.innerHTML = "❌ Identifiants incorrects";
       el.loginMessage.className = "login-message show error";
       el.password.value = "";
+      
+      console.warn(`❌ Authentication failed for user: ${username}`);
     }
   });
 }
@@ -123,8 +129,10 @@ function checkAuthentication() {
   if (sessionStorage.getItem("authenticated") === "true") {
     isAuthenticated = true;
     el.loginSection.classList.add("hidden");
+    console.log("✅ User already authenticated from session");
     initApp();
   } else {
+    console.log("🔓 No active session, showing login form");
     setupLoginListener();
   }
 }
@@ -135,7 +143,32 @@ function checkAuthentication() {
 document.addEventListener("DOMContentLoaded", function() {
   initializeElements();
   checkAuthentication();
+  
+  // Add window resize listener for responsive design
+  window.addEventListener("resize", handleWindowResize);
+  
+  // Handle initial window size
+  handleWindowResize();
 });
+
+// Handle responsive sidebar behavior on window resize
+function handleWindowResize() {
+  const sidebar = document.querySelector(".sidebar");
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  
+  if (window.innerWidth > 768) {
+    // Desktop: show sidebar, hide hamburger menu styling
+    if (sidebar) {
+      sidebar.classList.remove("open");
+    }
+    if (hamburgerBtn) {
+      hamburgerBtn.classList.remove("active");
+    }
+  } else {
+    // Mobile/Tablets: update hamburger visibility state
+    // Sidebar will be hidden by CSS media query
+  }
+}
 
 function initApp() {
   loadBase();
@@ -143,6 +176,14 @@ function initApp() {
   setupFormListener();
   setupFileInputListener();
   setupMatriculeGroupeListener();
+  
+  // Initialize the layout
+  switchSection("formulaire");
+  
+  // Log successful initialization
+  console.log("✅ Application initialized successfully");
+  console.log("Current viewport width:", window.innerWidth);
+  console.log("Sidebar visible:", window.innerWidth > 768 ? "Yes (Desktop)" : "No (Mobile - use hamburger menu)");
 }
 
 // ===============================
@@ -285,35 +326,96 @@ function showFormMessage(text, type) {
 // ===============================
 // SWITCH TAB (Navigation)
 // ===============================
-function switchTab(tabName) {
-  // Masquer tous les onglets
-  const tabs = document.querySelectorAll(".tab-section");
-  tabs.forEach(tab => tab.classList.remove("active"));
+// ===============================
+// TOGGLE SIDEBAR (Hamburger Menu)
+// ===============================
+function toggleSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
   
-  // Désactiver tous les boutons de nav
-  const navBtns = document.querySelectorAll(".nav-btn");
+  if (sidebar && hamburgerBtn) {
+    sidebar.classList.toggle("open");
+    hamburgerBtn.classList.toggle("active");
+    console.log("Sidebar toggled. Open:", sidebar.classList.contains("open"));
+  } else {
+    console.warn("⚠️ Sidebar or hamburger button not found!");
+  }
+}
+
+// Close sidebar when a button is clicked (mobile)
+function closeSidebarOnMobile() {
+  if (window.innerWidth <= 768) {
+    const sidebar = document.querySelector(".sidebar");
+    const hamburgerBtn = document.getElementById("hamburgerBtn");
+    
+    if (sidebar && hamburgerBtn) {
+      sidebar.classList.remove("open");
+      hamburgerBtn.classList.remove("active");
+      console.log("Sidebar closed on mobile");
+    }
+  }
+}
+
+// ===============================
+// SWITCH SECTION (Sidebar + Content)
+// ===============================
+function switchSection(sectionName) {
+  console.log(`🔄 Switching to section: ${sectionName}`);
+  
+  // Hide all sidebar sections
+  const sidebarSections = document.querySelectorAll(".sidebar-section");
+  sidebarSections.forEach(section => section.classList.remove("active"));
+  
+  // Hide all content sections
+  const contentSections = document.querySelectorAll(".content-section");
+  contentSections.forEach(section => section.classList.remove("active"));
+  
+  // Deactivate all sidebar nav buttons
+  const navBtns = document.querySelectorAll(".sidebar-nav-btn");
   navBtns.forEach(btn => btn.classList.remove("active"));
   
-  // Afficher l'onglet sélectionné
-  const selectedTab = document.getElementById(tabName);
-  if (selectedTab) {
-    selectedTab.classList.add("active");
+  // Show the selected sidebar section
+  const selectedSidebarSection = document.querySelector(`[data-section="${sectionName}"]`);
+  if (selectedSidebarSection) {
+    selectedSidebarSection.classList.add("active");
+    console.log(`✅ Sidebar section '${sectionName}' made active`);
+  } else {
+    console.warn(`⚠️ Sidebar section '${sectionName}' not found`);
   }
   
-  // Activer le bouton correspondant
-  const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
+  // Show the corresponding content section
+  const selectedContentSection = document.getElementById(`${sectionName}-content`);
+  if (selectedContentSection) {
+    selectedContentSection.classList.add("active");
+    console.log(`✅ Content section '${sectionName}' made active`);
+  } else {
+    console.warn(`⚠️ Content section '${sectionName}' not found`);
+  }
+  
+  // Activate the corresponding nav button
+  const selectedBtn = document.querySelector(`.sidebar-nav-btn[data-section="${sectionName}"]`);
   if (selectedBtn) {
     selectedBtn.classList.add("active");
   }
 
-  // Si on accède à détails, rafraîchir le graphique
-  if (tabName === "details") {
+  // Close sidebar on mobile
+  closeSidebarOnMobile();
+
+  // If statistics, refresh chart
+  if (sectionName === "details") {
     setTimeout(() => {
       if (collaboratorsChart) {
         collaboratorsChart.resize();
       }
     }, 100);
   }
+}
+
+// ===============================
+// SWITCH TAB (Legacy - for compatibility)
+// ===============================
+function switchTab(tabName) {
+  switchSection(tabName);
 }
 
 // ===============================

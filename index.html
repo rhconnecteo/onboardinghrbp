@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gestionnaire Collaborateurs - HRBP</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='30' cy='40' r='15' fill='%2306b6d4' opacity='0.9'/><circle cx='50' cy='25' r='15' fill='%2310b981' opacity='0.9'/><circle cx='70' cy='40' r='15' fill='%2306b6d4' opacity='0.9'/><line x1='30' y1='40' x2='50' y2='25' stroke='%2310b981' stroke-width='2' opacity='0.6'/><line x1='50' y1='25' x2='70' y2='40' stroke='%2306b6d4' stroke-width='2' opacity='0.6'/><line x1='30' y1='40' x2='70' y2='40' stroke='%2310b981' stroke-width='2' opacity='0.6'/></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='30' cy='40' r='15' fill='%231f2937' opacity='0.9'/><circle cx='50' cy='25' r='15' fill='%231f2937' opacity='0.9'/><circle cx='70' cy='40' r='15' fill='%231f2937' opacity='0.9'/><line x1='30' y1='40' x2='50' y2='25' stroke='%231f2937' stroke-width='2' opacity='0.6'/><line x1='50' y1='25' x2='70' y2='40' stroke='%231f2937' stroke-width='2' opacity='0.6'/><line x1='30' y1='40' x2='70' y2='40' stroke='%231f2937' stroke-width='2' opacity='0.6'/></svg>">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -16,29 +16,20 @@
       <div class="login-box">
         <div class="login-header">
           <svg class="logo" viewBox="0 0 100 100" width="60" height="60">
-            <!-- Cercle principal gradient -->
-            <defs>
-              <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            <!-- Trois collaborateurs représentés par des cercles -->
-            <circle cx="30" cy="40" r="15" fill="#06b6d4" opacity="0.9"/>
-            <circle cx="50" cy="25" r="15" fill="#10b981" opacity="0.9"/>
-            <circle cx="70" cy="40" r="15" fill="#06b6d4" opacity="0.9"/>
-            <!-- Connexions entre collaborateurs (réseau) -->
-            <line x1="30" y1="40" x2="50" y2="25" stroke="#10b981" stroke-width="2" opacity="0.6"/>
-            <line x1="50" y1="25" x2="70" y2="40" stroke="#06b6d4" stroke-width="2" opacity="0.6"/>
-            <line x1="30" y1="40" x2="70" y2="40" stroke="#10b981" stroke-width="2" opacity="0.6"/>
+            <circle cx="30" cy="40" r="15" fill="#1f2937" opacity="0.9"/>
+            <circle cx="50" cy="25" r="15" fill="#1f2937" opacity="0.9"/>
+            <circle cx="70" cy="40" r="15" fill="#1f2937" opacity="0.9"/>
+            <line x1="30" y1="40" x2="50" y2="25" stroke="#1f2937" stroke-width="2" opacity="0.6"/>
+            <line x1="50" y1="25" x2="70" y2="40" stroke="#1f2937" stroke-width="2" opacity="0.6"/>
+            <line x1="30" y1="40" x2="70" y2="40" stroke="#1f2937" stroke-width="2" opacity="0.6"/>
           </svg>
-          <h1>🔐 Authentification</h1>
+          <h1>Authentification</h1>
           <p>Gestionnaire Collaborateurs - HRBP</p>
         </div>
         
         <form id="loginForm" class="login-form">
           <div class="login-form-group">
-            <label for="username">👤 Utilisateur</label>
+            <label for="username">Utilisateur</label>
             <input 
               type="text" 
               id="username" 
@@ -50,7 +41,7 @@
           </div>
 
           <div class="login-form-group">
-            <label for="password">🔑 Mot de passe</label>
+            <label for="password">Mot de passe</label>
             <input 
               type="password" 
               id="password" 
@@ -64,214 +55,238 @@
           <div id="loginMessage" class="login-message"></div>
 
           <button type="submit" class="btn btn-login">
-            🚀 Se connecter
+            Se connecter
           </button>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- ====== HEADER ====== -->
   <header class="header">
+    <button class="hamburger-menu" id="hamburgerBtn" onclick="toggleSidebar()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
     <svg class="logo" viewBox="0 0 100 100" width="70" height="70">
-      <!-- Cercle principal gradient -->
-      <defs>
-        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
-          <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
-        </linearGradient>
-      </defs>
-      <!-- Trois collaborateurs représentés par des cercles -->
-      <circle cx="30" cy="40" r="15" fill="#06b6d4" opacity="0.9"/>
-      <circle cx="50" cy="25" r="15" fill="#10b981" opacity="0.9"/>
-      <circle cx="70" cy="40" r="15" fill="#06b6d4" opacity="0.9"/>
-      <!-- Connexions entre collaborateurs (réseau) -->
-      <line x1="30" y1="40" x2="50" y2="25" stroke="#10b981" stroke-width="2" opacity="0.6"/>
-      <line x1="50" y1="25" x2="70" y2="40" stroke="#06b6d4" stroke-width="2" opacity="0.6"/>
-      <line x1="30" y1="40" x2="70" y2="40" stroke="#10b981" stroke-width="2" opacity="0.6"/>
+      <circle cx="30" cy="40" r="15" fill="#1f2937" opacity="0.9"/>
+      <circle cx="50" cy="25" r="15" fill="#1f2937" opacity="0.9"/>
+      <circle cx="70" cy="40" r="15" fill="#1f2937" opacity="0.9"/>
+      <line x1="30" y1="40" x2="50" y2="25" stroke="#1f2937" stroke-width="2" opacity="0.6"/>
+      <line x1="50" y1="25" x2="70" y2="40" stroke="#1f2937" stroke-width="2" opacity="0.6"/>
+      <line x1="30" y1="40" x2="70" y2="40" stroke="#1f2937" stroke-width="2" opacity="0.6"/>
     </svg>
-    <h1>✨ Gestionnaire Collaborateurs - HRBP</h1>
-    <!-- <p class="subtitle">Gérez et importez vos collaborateurs facilement</p> -->
+    <h1>Gestionnaire Collaborateurs - HRBP</h1>
   </header>
 
-  <!-- ====== NAVIGATION ONGLETS ====== -->
-  <div class="nav-tabs">
-    <button class="nav-btn active" data-tab="formulaire" onclick="switchTab('formulaire')">
-      <span class="nav-icon">➕</span>
-      <span class="nav-text">Formulaire</span>
-    </button>
-    <button class="nav-btn" data-tab="import" onclick="switchTab('import')">
-      <span class="nav-icon">📥</span>
-      <span class="nav-text">Importer Excel</span>
-    </button>    <button class="nav-btn" data-tab="incomplets" onclick="switchTab('incomplets')">
-      <span class="nav-icon">⚠️</span>
-      <span class="nav-text">À Compléter</span>
-    </button>
-    <button class="nav-btn" data-tab="collaborateurs" onclick="switchTab('collaborateurs')">
-      <span class="nav-icon">👥</span>
-      <span class="nav-text">Tous Collaborateurs</span>
-    </button>    <button class="nav-btn" data-tab="details" onclick="switchTab('details')">
-      <span class="nav-icon">📊</span>
-      <span class="nav-text">Détails</span>
-    </button>
-  </div>
-
-  <!-- ====== SECTION FORMULAIRE ====== -->
-  <section id="formulaire" class="card form-card tab-section active">
-    <h2>➕ Ajouter un nouveau collaborateur</h2>
-
-    <form id="hrbpForm" class="hrbp-form">
-      <div class="form-group">
-        <label for="matricule">👤 Matricule</label>
-        <input type="text" id="matricule" name="matricule" placeholder="Ex: CN01234" required>
+  <!-- ====== MAIN CONTAINER ====== -->
+  <div class="app-container">
+    
+    <!-- ====== LEFT SIDEBAR ====== -->
+    <aside class="sidebar">
+      <div class="sidebar-nav">
+        <button class="sidebar-nav-btn active" data-section="formulaire" onclick="switchSection('formulaire')">
+          Formulaire
+        </button>
+        <button class="sidebar-nav-btn" data-section="import" onclick="switchSection('import')">
+          Importer Excel
+        </button>
+        <button class="sidebar-nav-btn" data-section="incomplets" onclick="switchSection('incomplets')">
+          À Compléter
+        </button>
+        <button class="sidebar-nav-btn" data-section="collaborateurs" onclick="switchSection('collaborateurs')">
+          Collaborateurs
+        </button>
+        <button class="sidebar-nav-btn" data-section="details" onclick="switchSection('details')">
+          Statistiques
+        </button>
       </div>
 
-      <div class="form-group">
-        <label for="statut">✓ Statut</label>
-        <select id="statut" name="statut" required>
-          <option value="">-- Choisir un statut --</option>
-          <option value="INT MDJ">INT MDJ (Stagiaire)</option>
-          <option value="CDI">CDI (Contrat Indéfini)</option>
-          <option value="CDD">CDD (Contrat Déterminé)</option>
-        </select>
-      </div>
+      <div class="sidebar-sections">
+      <!-- FORMULAIRE -->
+      <section class="sidebar-section active" data-section="formulaire">
+        <h2 class="sidebar-title">Ajouter Collaborateur</h2>
+        <form id="hrbpForm" class="hrbp-form">
+          <div class="form-group">
+            <label for="matricule">Matricule</label>
+            <input type="text" id="matricule" name="matricule" placeholder="CN01234" required>
+          </div>
 
-      <div class="form-group">
-        <label for="matriculeGroupe">🔗 Matricule Groupe (optionnel)</label>
-        <input type="text" id="matriculeGroupe" name="matriculeGroupe" placeholder="Ex: GROUPE001">
-      </div>
+          <div class="form-group">
+            <label for="statut">Statut</label>
+            <select id="statut" name="statut" required>
+              <option value="">-- Choisir --</option>
+              <option value="INT MDJ">INT MDJ (Stagiaire)</option>
+              <option value="CDI">CDI (Contrat Indéfini)</option>
+              <option value="CDD">CDD (Contrat Déterminé)</option>
+            </select>
+          </div>
 
-      <div class="form-group">
-        <label for="nom">👥 Nom et Prénoms</label>
-        <input type="text" id="nom" name="nom" placeholder="Ex: DUPONT Martin" required>
-      </div>
+          <div class="form-group">
+            <label for="matriculeGroupe">Matricule Groupe (opt.)</label>
+            <input type="text" id="matriculeGroupe" name="matriculeGroupe" placeholder="GROUPE001">
+          </div>
 
-      <div class="form-group">
-        <label for="fonction">💼 Fonction</label>
-        <select id="fonction" name="fonction" required>
-          <option value="">-- Sélectionner fonction --</option>
-        </select>
-      </div>
+          <div class="form-group">
+            <label for="nom">Nom et Prénoms</label>
+            <input type="text" id="nom" name="nom" placeholder="DUPONT Martin" required>
+          </div>
 
-      <div class="form-group">
-        <label for="rattachement">🏢 Rattachement</label>
-        <select id="rattachement" name="rattachement" required>
-          <option value="">-- Sélectionner rattachement --</option>
-        </select>
-      </div>
+          <div class="form-group">
+            <label for="fonction">Fonction</label>
+            <select id="fonction" name="fonction" required>
+              <option value="">-- Sélectionner --</option>
+            </select>
+          </div>
 
-      <div class="form-group">
-        <label for="dateIntegration">📅 Date d'intégration</label>
-        <input type="date" id="dateIntegration" name="dateIntegration" required>
-      </div>
+          <div class="form-group">
+            <label for="rattachement">Rattachement</label>
+            <select id="rattachement" name="rattachement" required>
+              <option value="">-- Sélectionner --</option>
+            </select>
+          </div>
 
-      <div class="form-group">
-        <label for="dateFin">🏁 Date Fin</label>
-        <input type="date" id="dateFin" name="dateFin" disabled>
-      </div>
+          <div class="form-group">
+            <label for="dateIntegration">Date d'intégration</label>
+            <input type="date" id="dateIntegration" name="dateIntegration" required>
+          </div>
 
-      <div id="formMessage" class="message"></div>
+          <div class="form-group">
+            <label for="dateFin">Date Fin</label>
+            <input type="date" id="dateFin" name="dateFin" disabled>
+          </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
-        <button type="reset" class="btn btn-secondary">🔄 Réinitialiser</button>
-      </div>
-    </form>
-  </section>
+          <div id="formMessage" class="message"></div>
 
-  <!-- ====== SECTION IMPORT ====== -->
-  <section id="import" class="card import-card tab-section">
-    <div class="import-header">
-      <h2>📥 Importer depuis Excel</h2>
-      <p class="info-text">Chargez votre fichier Excel et affichage de tous les données avant d'enregistrer</p>
-    </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <button type="reset" class="btn btn-secondary">Réinitialiser</button>
+          </div>
+        </form>
+      </section>
 
-    <div class="import-section">
-      <div class="import-info">
-        <p>📄 <strong>Format attendu:</strong> Excel avec les colonnes suivantes:</p>
-        <ul>
-          <li>👤 <strong>Matricule</strong></li>
-          <li>🔗 <strong>Matricule Groupe</strong> (optionnel)</li>
-          <li>✓ <strong>Statut</strong> (INT MDJ, CDI, CDD)</li>
-          <li>👥 <strong>Nom et Prénoms</strong></li>
-          <li>💼 <strong>Fonction</strong></li>
-          <li>🏢 <strong>Rattachement</strong></li>
-          <li>📅 <strong>Date d'intégration</strong> (format: JJ/MM/YYYY)</li>
-          <li>🏁 <strong>Date Fin</strong> (optionnel)</li>
-        </ul>
-      </div>
-
-      <div class="import-form">
-        <div class="file-input-wrapper">
-          <label for="excelFile" class="file-label">
-            <span class="file-icon">📂</span>
-            <span class="file-text">Sélectionner fichier Excel</span>
-          </label>
-          <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
-          <div id="fileName" class="file-name-display"></div>
-        </div>
-        <button type="button" class="btn btn-primary btn-large" onclick="previewExcelFile()">👀 Aperçu des données</button>
-      </div>
-
-      <div id="previewContainer" style="display: none; margin-top: 30px;">
-        <h3>🔍 Données à importer</h3>
-        <div class="preview-table-container">
-          <table id="previewTable" class="data-table">
-            <thead id="previewHead"></thead>
-            <tbody id="previewBody"></tbody>
-          </table>
+      <!-- IMPORTER EXCEL (FORM SECTION) -->
+      <section class="sidebar-section" data-section="import">
+        <h2 class="sidebar-title">Importer Excel</h2>
+        <div class="import-form">
+          <div class="file-input-wrapper">
+            <label for="excelFile" class="file-label">
+              <span class="file-icon">📁</span>
+              <span class="file-text">Sélectionner fichier</span>
+            </label>
+            <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
+            <div id="fileName" class="file-name-display"></div>
+          </div>
+          <button type="button" class="btn btn-primary btn-large" onclick="previewExcelFile()">Aperçu</button>
         </div>
         <div id="importMessage" class="message"></div>
-        <div class="import-actions">
-          <button type="button" class="btn btn-primary btn-large" onclick="importExcelFile()">✅ Enregistrer</button>
-          <button type="button" class="btn btn-secondary btn-large" onclick="cancelImport()">❌ Annuler</button>
+        <div id="sidebarImportActions" style="display: none; margin-top: 16px;">
+          <button type="button" class="btn btn-primary btn-large" onclick="importExcelFile()">Enregistrer</button>
+          <button type="button" class="btn btn-secondary btn-large" onclick="cancelImport()">Annuler</button>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <!-- ====== SECTION COLLABORATEURS À COMPLÉTER ====== -->
-  <section id="incomplets" class="card tab-section">
-    <h2>⚠️ Collaborateurs sans Matricule Groupe</h2>
-    <p class="info-text">Cliquez sur "Éditer" pour ajouter un Matricule Groupe (la Date Fin sera remplie automatiquement)</p>
-    <div id="collaboratorsWithoutMatriculeGroupeContainer" class="table-container"></div>
-  </section>
+      <!-- À COMPLÉTER (ACTIONS SECTION) -->
+      <section class="sidebar-section" data-section="incomplets">
+        <h2 class="sidebar-title">À Compléter</h2>
+        <p class="sidebar-hint">Cliquez sur "Éditer" pour ajouter un Matricule Groupe</p>
+        <div id="sidebarIncompletsActions" class="sidebar-actions"></div>
+      </section>
 
-  <!-- ====== SECTION TOUS LES COLLABORATEURS ====== -->
-  <section id="collaborateurs" class="card tab-section">
-    <h2>👥 Tous les Collaborateurs</h2>
-    <div id="collaboratorsTableContainer" class="table-container"></div>
-  </section>
+      <!-- COLLABORATEURS (ACTIONS SECTION) -->
+      <section class="sidebar-section" data-section="collaborateurs">
+        <h2 class="sidebar-title">Collaborateurs</h2>
+        <div id="sidebarCollaboratorsActions" class="sidebar-actions"></div>
+      </section>
 
-  <!-- ====== SECTION DÉTAILS & STATISTIQUES ====== -->
-  <section id="details" class="card details-card tab-section">
-    <h2>📊 Détails</h2>
-    
-    <div class="stats-container">
-      <div class="stat-card">
-        <div class="stat-number" id="totalCollaborators">0</div>
-        <div class="stat-label">Collaborateurs Total</div>
+      <!-- STATISTIQUES -->
+      <section class="sidebar-section" data-section="details">
+        <h2 class="sidebar-title">Statistiques</h2>
+        <div class="stats-container">
+          <div class="stat-card">
+            <div class="stat-number" id="totalCollaborators">0</div>
+            <div class="stat-label">Total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalCDI">0</div>
+            <div class="stat-label">CDI</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalCDD">0</div>
+            <div class="stat-label">CDD</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalINT">0</div>
+            <div class="stat-label">Stagiaires</div>
+          </div>
+        </div>
+      </section>
       </div>
-      <div class="stat-card">
-        <div class="stat-number" id="totalCDI">0</div>
-        <div class="stat-label">CDI</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="totalCDD">0</div>
-        <div class="stat-label">CDD</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number" id="totalINT">0</div>
-        <div class="stat-label">INT MDJ</div>
-      </div>
-    </div>
+    </aside>
 
-    <div class="chart-section">
-      <h3>📈 Répartition par Rattachement</h3>
-      <div class="chart-container">
-        <canvas id="collaboratorsChart"></canvas>
-      </div>
-    </div>
-  </section>
+    <!-- ====== RIGHT MAIN CONTENT ====== -->
+    <main class="main-content">
+      
+      <!-- FORMULAIRE DISPLAY -->
+      <section id="formulaire-content" class="content-section active">
+        <h2>Ajouter un Collaborateur</h2>
+        <p class="info-text">Utilisez le formulaire à gauche pour ajouter un nouveau collaborateur à la base de données.</p>
+      </section>
+
+      <!-- IMPORT EXCEL DISPLAY -->
+      <section id="import-content" class="content-section">
+        <h2>Importer depuis Excel</h2>
+        <div class="import-info">
+          <p><strong>Format attendu:</strong> Colonnes Excel requises:</p>
+          <ul>
+            <li><strong>Matricule</strong></li>
+            <li><strong>Matricule Groupe</strong> (optionnel)</li>
+            <li><strong>Statut</strong> (INT MDJ, CDI, CDD)</li>
+            <li><strong>Nom et Prénoms</strong></li>
+            <li><strong>Fonction</strong></li>
+            <li><strong>Rattachement</strong></li>
+            <li><strong>Date d'intégration</strong> (JJ/MM/YYYY)</li>
+            <li><strong>Date Fin</strong> (optionnel)</li>
+          </ul>
+        </div>
+        <div id="previewContainer" style="display: none; margin-top: 30px;">
+          <h3>Données à importer</h3>
+          <div class="preview-table-container">
+            <table id="previewTable" class="data-table">
+              <thead id="previewHead"></thead>
+              <tbody id="previewBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- À COMPLÉTER DISPLAY -->
+      <section id="incomplets-content" class="content-section">
+        <h2>À Compléter</h2>
+        <p class="info-text">Collaborateurs sans Matricule Groupe</p>
+        <div id="collaboratorsWithoutMatriculeGroupeContainer" class="table-container"></div>
+      </section>
+
+      <!-- COLLABORATEURS DISPLAY -->
+      <section id="collaborateurs-content" class="content-section">
+        <h2>Tous les Collaborateurs</h2>
+        <div id="collaboratorsTableContainer" class="table-container"></div>
+      </section>
+
+      <!-- STATISTIQUES DISPLAY -->
+      <section id="details-content" class="content-section">
+        <h2>Statistiques et Graphiques</h2>
+        <div class="chart-section">
+          <h3>Répartition par Rattachement</h3>
+          <div class="chart-container">
+            <canvas id="collaboratorsChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
 
   <!-- SheetJS pour lire les fichiers Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -280,4 +295,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-
