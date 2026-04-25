@@ -927,127 +927,93 @@ async function previewExcelFile() {
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
-    // Convertir en array d'objets
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    // Lire les données en format brut (par position de colonnes)
+    const rows = [];
+    for (let i = 1; i <= worksheet['!ref'].split('!')[1].slice(-1); i++) {
+      const row = [];
+      for (let j = 0; j < 6; j++) {
+        const cellRef = String.fromCharCode(65 + j) + i; // A, B, C, D, E, F
+        const cell = worksheet[cellRef];
+        row.push(cell ? cell.v : "");
+      }
+      if (row.some(cell => cell !== "")) { // Ignorer les lignes vides
+        rows.push(row);
+      }
+    }
 
-    if (jsonData.length === 0) {
+    if (rows.length === 0) {
       const importMsg = document.getElementById("importMessage");
       importMsg.textContent = "❌ Le fichier Excel est vide";
       importMsg.className = "message show error";
       return;
     }
 
-    // Normaliser les noms de colonnes (trimmer et minuscule, enlever caractères spéciaux)
-    const normalizedData = jsonData.map(row => {
-      const normalized = {};
-      for (const key in row) {
-        // Nettoyer: minuscule, trim, espaces, accents, apostrophes, guillemets
-        const normalizedKey = key
-          .toLowerCase()
-          .trim()
-          .replace(/\s+/g, "")
-          .replace(/[éèêë]/g, "e")
-          .replace(/[àâä]/g, "a")
-          .replace(/[ùûü]/g, "u")
-          .replace(/[ôö]/g, "o")
-          .replace(/[ïî]/g, "i")
-          .replace(/[''`"]/g, "") // Supprimer apostrophes et guillemets
-          .replace(/[^\w]/g, ""); // Supprimer tous les caractères non-alphanumériques sauf underscore
-        
-        if (normalizedKey && normalizedKey !== "") { // Ignorer les colonnes vides
-          normalized[normalizedKey] = row[key];
-        }
-      }
-      return normalized;
-    });
-
-    // Valider les colonnes (chercher les colonnes qui contiennent les mots-clés)
-    const firstRow = normalizedData[0];
-    const availableColumns = Object.keys(firstRow);
-    
-    console.log("Colonnes disponibles:", availableColumns);
-
-    // Chercher les colonnes de manière flexible
-    let matriculeCol = availableColumns.find(col => col.includes("matricule") && !col.includes("groupe"));
-    let matriculeGroupeCol = availableColumns.find(col => col.includes("matricule") && col.includes("groupe"));
-    let statutCol = availableColumns.find(col => col.includes("statut"));
-    let nomCol = availableColumns.find(col => col.includes("nom"));
-    let fonctionCol = availableColumns.find(col => col.includes("fonction"));
-    let rattachementCol = availableColumns.find(col => col.includes("rattachement"));
-    let dateIntegrationCol = availableColumns.find(col => col.includes("date") && col.includes("integ"));
-    let dateFinCol = availableColumns.find(col => col.includes("date") && col.includes("fin"));
-    
-    console.log("Colonnes trouvées:", {matriculeCol, matriculeGroupeCol, statutCol, nomCol, fonctionCol, rattachementCol, dateIntegrationCol, dateFinCol});
-
-    // Vérifier que les colonnes obligatoires existent
-    if (!matriculeCol || !statutCol || !fonctionCol || !rattachementCol || !dateIntegrationCol) {
-      const importMsg = document.getElementById("importMessage");
-      importMsg.textContent = "❌ Colonnes manquantes. Obligatoires: Matricule, Statut, Fonction, Rattachement, Date d'intégration";
-      importMsg.className = "message show error";
-      return;
-    }
-
-    // Transformer les données et valider
-    pendingImportData = normalizedData.map((row, index) => {
+    // Transformer les données par position de colonnes
+    // A=Matricule, B=Nom, C=Fonction, D=Rattachement, E=Statut, F=Date d'intégration
+    pendingImportData = rows.map((row, index) => {
       let errors = [];
       
+      const matricule = String(row[0] || "").trim();
+      const nom = String(row[1] || "").trim();
+      const fonction = String(row[2] || "").trim();
+      const rattachement = String(row[3] || "").trim();
+      const statut = String(row[4] || "").trim().toUpperCase();
+      let dateIntegration = String(row[5] || "").trim();
+
+      // Valider les champs obligatoires
+      if (!matricule) errors.push("Matricule vide");
+      if (!nom) errors.push("Nom vide");
+      if (!fonction) errors.push("Fonction vide");
+      if (!rattachement) errors.push("Rattachement vide");
+      if (!statut) errors.push("Statut vide");
+      if (!dateIntegration) errors.push("Date d'intégration vide");
+
       // Valider le statut
-      const statut = (row[statutCol] || "").toString().trim().toUpperCase();
-      if (!["INT MDJ", "CDI", "CDD"].includes(statut)) {
+      if (statut && !["INT MDJ", "CDI", "CDD"].includes(statut)) {
         errors.push(`Statut invalide "${statut}"`);
       }
 
-      // Récupérer la fonction et rattachement
-      const fonction = (row[fonctionCol] || "").toString().trim();
-      const rattachement = (row[rattachementCol] || "").toString().trim();
-      
-      // DEBUG: afficher la première ligne
-      if (index === 0) {
-        console.log("Première ligne - Fonction:", `"${fonction}"`);
-        console.log("Première ligne - Rattachement:", `"${rattachement}"`);
-        console.log("BASE Fonctions:", baseData.fonctions);
-        console.log("BASE Rattachements:", baseData.rattachements);
-      }
-
       // Valider fonction et rattachement contre la BASE
-      if (!baseData.fonctions.includes(fonction)) {
-        errors.push(`Fonction invalide "${fonction}"`);
+      if (fonction && !baseData.fonctions.includes(fonction)) {
+        errors.push(`Fonction "${fonction}" n'existe pas`);
       }
-      if (!baseData.rattachements.includes(rattachement)) {
-        errors.push(`Rattachement invalide "${rattachement}"`);
+      if (rattachement && !baseData.rattachements.includes(rattachement)) {
+        errors.push(`Rattachement "${rattachement}" n'existe pas`);
       }
 
       // Convertir la date d'intégration (si c'est un nombre, c'est un timestamp Excel)
-      let dateStr = String(row[dateIntegrationCol] || "").trim();
-      if (!isNaN(dateStr) && dateStr !== "") {
-        // C'est un nombre Excel, convertir
-        const excelDate = parseInt(dateStr);
+      if (dateIntegration && !isNaN(dateIntegration)) {
+        const excelDate = parseInt(dateIntegration);
         const date = new Date((excelDate - 25569) * 86400 * 1000);
-        dateStr = date.toISOString().split("T")[0];
-      }
-
-      // Convertir la date fin si elle existe
-      let dateFinStr = "";
-      if (dateFinCol) {
-        dateFinStr = String(row[dateFinCol] || "").trim();
-        if (!isNaN(dateFinStr) && dateFinStr !== "") {
-          const excelDate = parseInt(dateFinStr);
-          const date = new Date((excelDate - 25569) * 86400 * 1000);
-          dateFinStr = date.toISOString().split("T")[0];
-        }
+        dateIntegration = date.toISOString().split("T")[0];
       }
 
       return {
-        matricule: (row[matriculeCol] || "").toString().trim(),
-        matriculeGroupe: matriculeGroupeCol ? (row[matriculeGroupeCol] || "").toString().trim() : "",
-        statut: statut,
-        nom: nomCol ? (row[nomCol] || "").toString().trim() : (row[matriculeCol] || "").toString().trim(),
+        matricule: matricule,
+        nom: nom,
         fonction: fonction,
         rattachement: rattachement,
-        dateIntegration: dateStr,
-        dateFin: dateFinStr,
+        statut: statut,
+        dateIntegration: dateIntegration,
+        dateFin: "", // Pas de date fin dans l'import
         isValid: errors.length === 0,
         validationErrors: errors
+      };
+    });
+
+    console.log("Données importées:", pendingImportData);
+
+    // Afficher l'aperçu
+    displayPreviewTable();
+
+  } catch (err) {
+    console.error("Erreur parsing Excel:", err);
+    const importMsg = document.getElementById("importMessage");
+    importMsg.textContent = `❌ Erreur: ${err.message}`;
+    importMsg.className = "message show error";
+    pendingImportData = [];
+  }
+}
       };
     });
 
