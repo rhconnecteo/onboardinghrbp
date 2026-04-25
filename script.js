@@ -1,4 +1,7 @@
 // ===============================
+// Importer la librairie xlsx pour lire les fichiers Excel
+// (assurez-vous que xlsx est bien installé via npm)
+import * as XLSX from "xlsx";
 // CONFIG API
 // ===============================
 const API_URL = "https://script.google.com/macros/s/AKfycbwFeowZnHTtxGYp9MLg6pA_80s27vY0rMx2tMuIF8icMhu6C5WgOwvjgpPZAK79VSrQ/exec";
@@ -243,85 +246,58 @@ function populateSelects() {
 // ===============================
 // FILTRER LES FONCTIONS PAR RATTACHEMENT
 // ===============================
-function filterFonctions() {
-  const fonctionSelect = document.getElementById("fonction");
-  const rattachementSelect = document.getElementById("rattachement");
+window.previewExcelFile = function() {
+  const input = el.excelFile;
+  const importMessage = document.getElementById("importMessage");
+  const previewContainer = document.getElementById("previewContainer");
 
-  if (!fonctionSelect || !rattachementSelect) return;
-
-  const selectedRattachement = rattachementSelect.value;
-
-  // TODO: A implémenter avec logique de filtrage spécifique
-  // Pour l'instant, afficher toutes les fonctions
-  fonctionSelect.innerHTML = '<option value="">-- Sélectionner fonction --</option>';
-  baseData.fonctions.forEach(f => {
-    const option = document.createElement("option");
-    option.value = f;
-    option.textContent = f;
-    fonctionSelect.appendChild(option);
-  });
-}
-
-// ===============================
-// CHARGER LES COLLABORATEURS
-// ===============================
-async function loadCollaborators() {
-  try {
-    // Récupérer les données depuis l'API avec GET et action=getUsers
-    const response = await fetch(API_URL + "?action=getUsers");
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    // L'API retourne un array ou un objet avec error
-    if (Array.isArray(data)) {
-      allCollaborators = data;
-      updateStats();
-      renderChart();
-      renderCollaboratorsTable();
-      renderCollaboratorsWithoutMatriculeGroupe();
-    } else if (data.error) {
-      throw new Error(data.error);
-    } else {
-      throw new Error("Format de réponse invalide");
-    }
-
-  } catch (err) {
-    console.error("Erreur chargement collaborateurs:", err);
-    showFormMessage(`❌ Erreur: ${err.message}`, "error");
+  if (!input.files || !input.files[0]) {
+    importMessage.innerHTML = "❌ Veuillez sélectionner un fichier Excel.";
+    previewContainer.innerHTML = "";
+    return;
   }
-}
 
-// ===============================
-// METTRE À JOUR LES STATS
-// ===============================
-function updateStats() {
-  const total = allCollaborators.length;
-  const cdi = allCollaborators.filter(c => c.statut === "CDI").length;
-  const cdd = allCollaborators.filter(c => c.statut === "CDD").length;
-  const intMdj = allCollaborators.filter(c => c.statut === "INT MDJ").length;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-  el.totalCollaborators.textContent = total;
-  el.totalCDI.textContent = cdi;
-  el.totalCDD.textContent = cdd;
-  el.totalINT.textContent = intMdj;
-}
+    // Lire toutes les lignes (pas de vérification d'en-tête)
+    const rows = json.filter(row => row.length >= 6);
+    if (rows.length === 0) {
+      importMessage.innerHTML = "❌ Aucun collaborateur trouvé dans le fichier.";
+      previewContainer.innerHTML = "";
+      return;
+    }
 
-// ===============================
-// AFFICHER MESSAGE FORMULAIRE
-// ===============================
-function showFormMessage(text, type) {
-  el.formMessage.textContent = text;
-  el.formMessage.className = `message show ${type}`;
-  
-  // Masquer le message après 4 secondes
-  setTimeout(() => {
-    el.formMessage.classList.remove("show");
-  }, 4000);
-}
+    // Afficher l'aperçu et les boutons
+    const headers = [
+      "Matricule", "Nom et Prénom", "Fonction", "Rattachement", "Statut", "Date d'intégration"
+    ];
+    let html = `<div style=\"margin-bottom:16px;\">\n      <table class='collaborators-table'><thead><tr>`;
+    headers.forEach(h => html += `<th>${h}</th>`);
+    html += `</tr></thead><tbody>`;
+    rows.forEach(row => {
+      html += "<tr>";
+      for (let i = 0; i < headers.length; i++) {
+        html += `<td>${row[i] || ""}</td>`;
+      }
+      html += "</tr>";
+    });
+    html += `</tbody></table></div>`;
+    html += `<div style=\"margin-top:12px;\">\n      <button type=\"button\" class=\"btn btn-primary btn-large\" onclick=\"importExcelFile()\">Enregistrer</button>\n      <button type=\"button\" class=\"btn btn-secondary btn-large\" style=\"margin-left:8px;\" onclick=\"cancelImport()\">Annuler</button>\n    </div>`;
+    previewContainer.innerHTML = html;
+    importMessage.innerHTML = `✅ ${rows.length} collaborateurs trouvés. Cliquez sur Enregistrer pour importer.`;
+
+    // Stocker temporairement les données pour l'import
+    window._excelImportData = rows;
+  };
+  reader.readAsArrayBuffer(file);
+};
 
 // ===============================
 // SWITCH TAB (Navigation)
@@ -548,11 +524,148 @@ function setupFileInputListener() {
       
       fileNameDisplay.innerHTML = `✅ <strong>Fichier chargé:</strong> ${fileName} (${fileSize} KB)`;
       fileNameDisplay.classList.add("show");
+      // Réinitialiser l'aperçu
+      document.getElementById("importMessage").innerHTML = "";
+      document.getElementById("sidebarImportActions").style.display = "none";
+      document.getElementById("previewContainer").innerHTML = "";
     } else {
       fileNameDisplay.classList.remove("show");
     }
   });
 }
+
+// Fonction pour lire et afficher l'aperçu du fichier Excel
+window.previewExcelFile = function() {
+  const input = el.excelFile;
+  const importMessage = document.getElementById("importMessage");
+  const previewContainer = document.getElementById("previewContainer");
+
+  if (!input.files || !input.files[0]) {
+    importMessage.innerHTML = "❌ Veuillez sélectionner un fichier Excel.";
+    previewContainer.innerHTML = "";
+    return;
+  }
+
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+    // En-têtes attendus
+    const headers = [
+      "Matricule", // Col A
+      "Nom et Prénom", // Col B
+      "Fonction", // Col C
+      "Rattachement", // Col D
+      "Statut", // Col E
+      "Date d'intégration" // Col F
+    ];
+
+    // Vérifier les en-têtes
+    const firstRow = json[0] || [];
+    let valid = true;
+    for (let i = 0; i < headers.length; i++) {
+      if ((firstRow[i] || "").toLowerCase().trim() !== headers[i].toLowerCase().trim()) {
+        valid = false;
+        break;
+      }
+    }
+    if (!valid) {
+      importMessage.innerHTML = `❌ Format de fichier incorrect. Les colonnes attendues sont :<br>${headers.join(" | ")}`;
+      previewContainer.innerHTML = "";
+      return;
+    }
+
+    // Extraire les données (ignorer la première ligne)
+    const rows = json.slice(1).filter(row => row.length >= headers.length);
+    if (rows.length === 0) {
+      importMessage.innerHTML = "❌ Aucun collaborateur trouvé dans le fichier.";
+      previewContainer.innerHTML = "";
+      return;
+    }
+
+    // Afficher l'aperçu et les boutons
+    let html = `<div style="margin-bottom:16px;">
+      <table class='collaborators-table'><thead><tr>`;
+    headers.forEach(h => html += `<th>${h}</th>`);
+    html += `</tr></thead><tbody>`;
+    rows.forEach(row => {
+      html += "<tr>";
+      for (let i = 0; i < headers.length; i++) {
+        html += `<td>${row[i] || ""}</td>`;
+      }
+      html += "</tr>";
+    });
+    html += `</tbody></table></div>`;
+    html += `<div style="margin-top:12px;">
+      <button type="button" class="btn btn-primary btn-large" onclick="importExcelFile()">Enregistrer</button>
+      <button type="button" class="btn btn-secondary btn-large" style="margin-left:8px;" onclick="cancelImport()">Annuler</button>
+    </div>`;
+    previewContainer.innerHTML = html;
+    importMessage.innerHTML = `✅ ${rows.length} collaborateurs trouvés. Cliquez sur Enregistrer pour importer.`;
+
+    // Stocker temporairement les données pour l'import
+    window._excelImportData = rows;
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+// Fonction pour enregistrer les données importées
+window.importExcelFile = async function() {
+  const importMessage = document.getElementById("importMessage");
+  const previewContainer = document.getElementById("previewContainer");
+  const rows = window._excelImportData || [];
+  if (!rows.length) {
+    importMessage.innerHTML = "❌ Aucun collaborateur à importer.";
+    return;
+  }
+
+  let successCount = 0;
+  let errorCount = 0;
+  for (const row of rows) {
+    const [matricule, nom, fonction, rattachement, statut, dateIntegration] = row;
+    // Validation simple
+    if (!matricule || !nom || !fonction || !rattachement || !statut || !dateIntegration) {
+      errorCount++;
+      continue;
+    }
+    try {
+      const params = new URLSearchParams();
+      params.append("action", "addUser");
+      params.append("matricule", matricule);
+      params.append("matriculeGroupe", "");
+      params.append("statut", statut);
+      params.append("nom", nom);
+      params.append("fonction", fonction);
+      params.append("rattachement", rattachement);
+      params.append("dateIntegration", dateIntegration);
+      params.append("dateFin", "");
+      const response = await fetch(API_URL + "?" + params.toString());
+      const data = await response.json();
+      if (data.success) successCount++;
+      else errorCount++;
+    } catch {
+      errorCount++;
+    }
+  }
+  importMessage.innerHTML = `✅ Import terminé : ${successCount} ajoutés, ${errorCount} erreurs.`;
+  // Recharger la liste
+  loadCollaborators();
+  // Nettoyer l'aperçu
+  previewContainer.innerHTML = "";
+  window._excelImportData = [];
+};
+
+// Annuler l'import
+window.cancelImport = function() {
+  document.getElementById("previewContainer").innerHTML = "";
+  document.getElementById("importMessage").innerHTML = "";
+  window._excelImportData = [];
+};
 
 // ===============================
 // DIAGRAMME
@@ -1002,20 +1115,6 @@ async function previewExcelFile() {
     });
 
     console.log("Données importées:", pendingImportData);
-
-    // Afficher l'aperçu
-    displayPreviewTable();
-
-  } catch (err) {
-    console.error("Erreur parsing Excel:", err);
-    const importMsg = document.getElementById("importMessage");
-    importMsg.textContent = `❌ Erreur: ${err.message}`;
-    importMsg.className = "message show error";
-    pendingImportData = [];
-  }
-}
-      };
-    });
 
     // Afficher l'aperçu
     displayPreviewTable();

@@ -171,10 +171,13 @@
         <h2 class="sidebar-title">Importer Excel</h2>
         <div class="import-form">
           <div class="file-input-wrapper">
-            <label for="excelFile" class="file-label">
-              <span class="file-icon">📁</span>
-              <span class="file-text">Sélectionner fichier</span>
-            </label>
+              <label for="excelFile" class="file-label">
+                <span class="file-icon">📁</span>
+                <span class="file-text">Sélectionner fichier</span>
+                <span style="margin-left:8px;vertical-align:middle;">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/file-type-xlsx/file-type-xlsx-plain.svg" alt="Excel" width="24" style="vertical-align:middle;" />
+                </span>
+              </label>
             <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
             <div id="fileName" class="file-name-display"></div>
           </div>
@@ -250,15 +253,7 @@
             <li><strong>Date Fin</strong> (optionnel)</li>
           </ul>
         </div>
-        <div id="previewContainer" style="display: none; margin-top: 30px;">
-          <h3>Données à importer</h3>
-          <div class="preview-table-container">
-            <table id="previewTable" class="data-table">
-              <thead id="previewHead"></thead>
-              <tbody id="previewBody"></tbody>
-            </table>
-          </div>
-        </div>
+        <div id="previewContainer" style="margin: 40px auto 0 auto; max-width: 900px; min-height: 120px;"></div>
       </section>
 
       <!-- À COMPLÉTER DISPLAY -->
